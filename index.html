@@ -75,11 +75,20 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   overscroll-behavior: none;
+  height: 100%;
+  height: 100dvh;
 }
 
 
 /* ── 3. Body ───────────────────────────────────────────────────
    Centers the phone shell on desktop; fills the viewport on mobile.
+
+   position: fixed + fixed height locks the page itself to the
+   visual viewport on iOS Safari. Without this, the outer <body>
+   is free to scroll/rubber-band whenever content is taller than
+   the address-bar-adjusted viewport, which drags the header and
+   bottom nav out of place instead of keeping them pinned — the
+   inner .screen-scroll is what should scroll, never the page.
    ─────────────────────────────────────────────────────────────── */
 body {
   margin: 0;
@@ -88,7 +97,13 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
   color: var(--text-900);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;  /* Firefox */
@@ -186,7 +201,9 @@ input, textarea, select {
   .header-btn:active{ transform:scale(.96); }
   .header-btn:hover{ background:rgba(255,255,255,.22); }
 
-  .screen-scroll{ background:linear-gradient(180deg, rgba(255,255,255,.52) 0%, rgba(244,248,251,0) 28%), linear-gradient(180deg,#F7FAFC 0%,#EEF3F7 100%); flex:1; overflow-y:auto; }
+  .screen-scroll{ background:linear-gradient(180deg, rgba(255,255,255,.52) 0%, rgba(244,248,251,0) 28%), linear-gradient(180deg,#F7FAFC 0%,#EEF3F7 100%); flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  /* screens with no bottom nav (report, notifs, profile-less) need their own home-indicator clearance */
+  .screen-scroll:last-child{ padding-bottom:calc(1rem + env(safe-area-inset-bottom)) !important; }
 
   .card{ background:rgba(255,255,255,.96); border:1px solid rgba(226,232,240,.9); box-shadow:0 10px 24px -18px rgba(15,23,42,.45); border-radius:var(--radius-xl); transition:transform var(--t-fast), box-shadow var(--t-fast), border-color var(--t-fast), background-color var(--t-fast); text-align:inherit; font:inherit; color:inherit; }
   button.card:active{ transform:scale(.97); }
@@ -316,7 +333,7 @@ input, textarea, select {
         <div style="background:#fff; border-radius:1rem; padding:.85rem 1rem; display:flex; align-items:center; color:#374151; box-shadow:0 10px 28px -22px rgba(0,26,51,.45);">
           <i data-lucide="lock" style="width:18px;height:18px;color:#9CA3AF; margin-right:.6rem;"></i>
           <label for="loginPin" class="sr-only">PIN</label>
-          <input id="loginPin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="current-password" placeholder="PIN" value="1042" style="flex:1; border:none; outline:none; background:transparent; width:100%;" onkeydown="if(event.key==='Enter') login();">
+          <input id="loginPin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="current-password" placeholder="PIN" value="1042" readonly style="flex:1; border:none; outline:none; background:transparent; width:100%;" onkeydown="if(event.key==='Enter') login();">
         </div>
         <button class="dark-btn touch-lift" style="margin-top:.5rem;" onclick="login()">
           <i data-lucide="log-in" style="width:18px;height:18px;"></i> START SHIFT
